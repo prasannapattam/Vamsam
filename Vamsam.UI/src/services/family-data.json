@@ -1,0 +1,97 @@
+{
+  "id": 1,
+  "name": "",
+  "children": [
+    {
+      "husband": {
+        "id": 11,
+        "name": "Q"
+      },
+      "wife": {
+        "id": 10,
+        "name": "M"
+      },
+      "children": [
+        {
+          "husband": {
+            "id": 11,
+            "name": "J",
+            "parentID": 11
+          },
+          "wife": {
+            "id": 110,
+            "name": "L"
+          },
+          "children": []
+        },
+      ]
+    },
+    {
+      name: '',
+      id: 2,
+      no_parent: true,
+      hidden: true,
+      children: [
+        {
+          name: 'J',
+          id: 12,
+        },
+        {
+          name: 'L',
+          id: 13,
+          no_parent: true,
+        },
+        {
+          name: 'C',
+          id: 3,
+        },
+        {
+          name: '',
+          id: 4,
+          hidden: true,
+          no_parent: true,
+          children: [
+            {
+              name: 'D',
+              id: 5,
+            },
+            {
+              name: '',
+              id: 14,
+              hidden: true,
+              no_parent: true,
+              children: [
+                {
+                  name: 'P',
+                  id: 15,
+                },
+              ],
+            },
+            {
+              name: 'E',
+              id: 6,
+            },
+          ],
+        },
+        {
+          name: 'K',
+          id: 11,
+        },
+        {
+          name: 'G',
+          id: 7,
+          children: [
+            {
+              name: 'H',
+              id: 8,
+            },
+            {
+              name: 'I',
+              id: 9,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
