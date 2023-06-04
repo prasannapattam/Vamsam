@@ -1,5 +1,4 @@
 <template>
-  <q-avatar color="red" text-color="white" icon="face" size="20"></q-avatar>
   <div class="chart-container" style="width: 100%; min-height: inherit"></div>
 </template>
 <style lang="sass">
@@ -17,15 +16,22 @@
   background: radial-gradient(circle, #FFB6C1 0%, #FF69B4 100%)
 div.line
   margin-top: 13px
-  width: 2em
+  width: 5px
+  hr
+    border-style: solid
+    border-width: 5px 0 0
 
 .person-icon
-  font-size: 25px
-  padding: 2px
+  padding-top: 3px
+  width:40px
+  height:30px
 
 .person-name
-  text-align: center
+  text-align: left
   justify-content: center
+
+.selected-person
+  border: 4px solid #152785
 </style>
 
 <script setup lang="ts">
@@ -34,9 +40,16 @@ import { OrgChart } from '../services/d3-org-chart';
 import { onMounted } from 'vue';
 import { FamilyModel } from '../models/family-model';
 import { PersonModel } from 'src/models/person-model';
+import maleIcon from 'src/assets/images/male.svg';
+import femaleIcon from 'src/assets/images/female.svg';
+
+// class variables
+let chart: OrgChart;
+let selectedPersonId: string;
+let treeData: FamilyModel[];
 
 onMounted(() => {
-  const treeData: FamilyModel[] = getTreeData(); // get the family data
+  treeData = getTreeData(); // get the family data
   renderChart(treeData);
 });
 
@@ -46,13 +59,13 @@ function renderChart(data: FamilyModel[]) {
   const nodeWidthSpouse = 320;
   const gapWidth = nodeWidthSpouse - nodeWidth * 2;
   const linkShift = Math.round((nodeWidth + gapWidth) / 2);
-  const nodeHeight = 25; // not used
-  const nodeHeightSpouse = 25;
+  const nodeHeight = 40;
+  const nodeHeightSpouse = 40;
 
-  const chart = new OrgChart()
+  chart = new OrgChart()
     .container('.chart-container')
     .data(data)
-    .onNodeClick((d) => console.log(d + ' node clicked'))
+    .onNodeClick((nodeId: string) => nodeClicked(nodeId))
     .rootMargin(100)
     .nodeWidth((d) =>
       d.data.spouseId !== undefined ? nodeWidthSpouse : nodeWidth
@@ -61,7 +74,8 @@ function renderChart(data: FamilyModel[]) {
       d.data.spouseId !== undefined ? nodeHeightSpouse : nodeHeight
     )
     .childrenMargin((d) => 75)
-    // .compactMarginBetween((d) => 75)
+    .siblingsMargin((d) => 30)
+    // .compactMarginBetween((d) => 175)
     // .compactMarginPair((d) => 80)
     .linkUpdate(function (d, i, arr) {
       // drawing the connecting line
@@ -99,11 +113,6 @@ function renderChart(data: FamilyModel[]) {
   };
 
   chart.render().fit();
-
-  //console.log(chart.layoutBindings().top);
-
-  // chart.expandAll();
-  // chart.setExpanded('O-6084').render();
 }
 
 function getPersonNodeContent(personData: FamilyModel, personType: string) {
@@ -122,21 +131,50 @@ function getPersonNodeContent(personData: FamilyModel, personType: string) {
   if (person.id === undefined) {
     return '';
   } else {
-    const personCssClass =
-      person.gender === 'M' ? 'male-member' : 'female-member';
+    let personCssClass, personIcon;
+    if (person.gender === 'M') {
+      personCssClass = 'male-member';
+      personIcon = maleIcon;
+    } else {
+      personCssClass = 'female-member';
+      personIcon = femaleIcon;
+    }
     let nodeContent = '';
     if (personData.spouseId !== undefined && person.gender === 'F') {
       nodeContent += '<div class="line"><hr/></div>';
     }
     nodeContent += `
-        <div class="col ${personCssClass} person-member">
+        <div class="col ${personCssClass} person-member person-${person.id}" onclick="window.selectedPersonId = '${person.id}';">
           <div class="col-grow">
-            <i class="q-icon notranslate material-icons person-icon" aria-hidden="true" role="presentation">face</i>
+            <img src="${personIcon}" class="person-icon" />
           </div>
           <div class="col person-name">${person.name}</div>
         </div>`;
     return nodeContent;
   }
+}
+
+function nodeClicked(personId: string) {
+  chart.setCentered(personId);
+  // for each of the childrent set expanded
+  treeData.forEach((d) => {
+    if (d.parentId === personId) {
+      chart.setExpanded(d.id);
+    }
+  });
+
+  chart.render().fit();
+
+  console.log(window.selectedPersonId);
+  selectedPersonId = window.selectedPersonId;
+  d3.selectAll('.chart-container .person-member').classed(
+    'selected-person',
+    false
+  );
+  d3.select(`.chart-container .person-${selectedPersonId}`).classed(
+    'selected-person',
+    true
+  );
 }
 
 function getTreeData() {
