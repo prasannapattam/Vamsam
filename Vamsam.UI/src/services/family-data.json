@@ -1,97 +1,164 @@
-{
-  "id": 1,
-  "name": "",
-  "children": [
-    {
-      "husband": {
-        "id": 11,
-        "name": "Q"
-      },
-      "wife": {
-        "id": 10,
-        "name": "M"
-      },
-      "children": [
-        {
-          "husband": {
-            "id": 11,
-            "name": "J",
-            "parentID": 11
-          },
-          "wife": {
-            "id": 110,
-            "name": "L"
-          },
-          "children": []
-        },
-      ]
-    },
-    {
-      name: '',
-      id: 2,
-      no_parent: true,
-      hidden: true,
-      children: [
-        {
-          name: 'J',
-          id: 12,
-        },
-        {
-          name: 'L',
-          id: 13,
-          no_parent: true,
-        },
-        {
-          name: 'C',
-          id: 3,
-        },
-        {
-          name: '',
-          id: 4,
-          hidden: true,
-          no_parent: true,
-          children: [
-            {
-              name: 'D',
-              id: 5,
-            },
-            {
-              name: '',
-              id: 14,
-              hidden: true,
-              no_parent: true,
-              children: [
-                {
-                  name: 'P',
-                  id: 15,
-                },
-              ],
-            },
-            {
-              name: 'E',
-              id: 6,
-            },
-          ],
-        },
-        {
-          name: 'K',
-          id: 11,
-        },
-        {
-          name: 'G',
-          id: 7,
-          children: [
-            {
-              name: 'H',
-              id: 8,
-            },
-            {
-              name: 'I',
-              id: 9,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+[
+  {
+    "id": "L1-L1S",
+    "childId": "L1",
+    "name": "Grand Father",
+    "gender": "M",
+    "parentId": "",
+    "childOrder": 1,
+    "spouseId": "L1S",
+    "spouseName": "Grand Mother",
+    "spouseGender": "F",
+    "spouseOrder": 1
+  },
+  {
+    "id": "C1-C1S1",
+    "childId": "C1",
+    "name": "Son 1",
+    "gender": "M",
+    "parentId": "L1-L1S",
+    "childOrder": 1,
+    "spouseId": "C1S1",
+    "spouseName": "Wife 1",
+    "spouseGender": "F",
+    "spouseOrder": 1
+  },
+  {
+    "id": "C1-C1S2",
+    "childId": "C1",
+    "name": "Son 1",
+    "gender": "M",
+    "parentId": "L1-L1S",
+    "childOrder": 1,
+    "spouseId": "C1S2",
+    "spouseName": "Wife 2",
+    "spouseGender": "F",
+    "spouseOrder": 2,
+    "primarySpouseId": "C1-C1S1"
+  },
+  {
+    "id": "C2-C2S1",
+    "childId": "C2",
+    "name": "Daughter",
+    "gender": "F",
+    "parentId": "L1-L1S",
+    "childOrder": 2,
+    "spouseId": "C2S1",
+    "spouseName": "Husband 1",
+    "spouseGender": "M",
+    "spouseOrder": 1,
+    "primarySpouseId": "C2-C2S2"
+  },
+  {
+    "id": "C2-C2S2",
+    "childId": "C2",
+    "name": "Daughter",
+    "gender": "F",
+    "parentId": "L1-L1S",
+    "childOrder": 2,
+    "spouseId": "C2S2",
+    "spouseName": "Husband 2",
+    "spouseGender": "M",
+    "spouseOrder": 1
+  },
+  {
+    "id": "C3-C3S",
+    "childId": "C3",
+    "name": "Son 2",
+    "gender": "M",
+    "parentId": "L1-L1S",
+    "childOrder": 3,
+    "spouseId": "C3S",
+    "spouseName": "Wife",
+    "spouseGender": "F",
+    "spouseOrder": 1
+  },
+  {
+    "id": "G1",
+    "childId": "G1",
+    "name": "Grand Daughter 1",
+    "gender": "F",
+    "parentId": "C1-C1S1",
+    "childOrder": 1
+  },
+  {
+    "id": "G2",
+    "childId": "G2",
+    "name": "Grand Son 2",
+    "gender": "M",
+    "parentId": "C1-C1S1",
+    "childOrder": 2
+  },
+  {
+    "id": "G3",
+    "childId": "G3",
+    "name": "Grand Daughter 3",
+    "gender": "F",
+    "parentId": "C1-C1S2",
+    "childOrder": 1
+  },
+  {
+    "id": "G4",
+    "childId": "G4",
+    "name": "Grand Son 4",
+    "gender": "M",
+    "parentId": "C1-C1S2",
+    "childOrder": 2
+  },
+  {
+    "id": "G15",
+    "childId": "G5",
+    "name": "Grand Daughter 5",
+    "gender": "F",
+    "parentId": "C2-C2S1",
+    "childOrder": 1
+  },
+  {
+    "id": "G16",
+    "childId": "G5",
+    "name": "Grand Daughter 5",
+    "gender": "F",
+    "parentId": "C2-C2S1",
+    "childOrder": 1
+  },
+  {
+    "id": "G17",
+    "childId": "G5",
+    "name": "Grand Daughter 5",
+    "gender": "F",
+    "parentId": "C2-C2S1",
+    "childOrder": 1
+  },
+  {
+    "id": "G5",
+    "childId": "G5",
+    "name": "Grand Daughter 5",
+    "gender": "F",
+    "parentId": "C2-C2S2",
+    "childOrder": 1
+  },
+  {
+    "id": "G6",
+    "childId": "G6",
+    "name": "Grand Daughter 6",
+    "gender": "F",
+    "parentId": "C2-C2S2",
+    "childOrder": 2
+  },
+  {
+    "id": "G7",
+    "childId": "G7",
+    "name": "Grand Son 7",
+    "gender": "M",
+    "parentId": "C3-C3S",
+    "childOrder": 1
+  },
+  {
+    "id": "G8",
+    "childId": "G8",
+    "name": "Grand Son 8",
+    "gender": "M",
+    "parentId": "C3-C3S",
+    "childOrder": 2
+  }
+]

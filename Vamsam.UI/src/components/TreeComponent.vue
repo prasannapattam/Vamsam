@@ -43,15 +43,18 @@ div.line
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import { OrgChart } from '../services/d3-org-chart';
 import { onMounted } from 'vue';
 import { FamilyModel } from '../models/family-model';
 import { PersonModel } from 'src/models/person-model';
 import maleIcon from 'src/assets/images/male.svg';
 import femaleIcon from 'src/assets/images/female.svg';
+import familyData from 'src/services/family-data.json';
+import treeConfiguration from 'src/services/tree-configuration';
+import { OrgChart, Connection, NodeId } from 'd3-org-chart';
+import { HierarchyNode } from 'd3-hierarchy';
 
 // class variables
-let chart: OrgChart;
+let chart: OrgChart<FamilyModel>;
 let selectedPersonId: string;
 let treeData: FamilyModel[];
 
@@ -61,51 +64,44 @@ onMounted(() => {
 });
 
 function renderChart(data: FamilyModel[]) {
-  // variables used in tree
-  const nodeWidth = 150;
-  const nodeWidthSpouse = 320;
-  const gapWidth = nodeWidthSpouse - nodeWidth * 2;
-  const linkShift = Math.round((nodeWidth + gapWidth) / 2);
-  const nodeHeight = 40;
-  const nodeHeightSpouse = 40;
-  const siblingsMargin = 20;
-
-  chart = new OrgChart()
-    .container('.chart-container')
+  chart = new OrgChart<FamilyModel>()
+    .container(treeConfiguration.chartContainer)
     .data(data)
-    .onNodeClick((nodeId: string) => nodeClicked(nodeId))
-    .rootMargin(100)
-    .nodeWidth((d) => {
+    .onNodeClick((nodeId: NodeId) => nodeClicked(nodeId))
+    .rootMargin(treeConfiguration.rootMargin)
+    .nodeWidth((d: HierarchyNode<FamilyModel>) => {
       if (d.data.primarySpouseId !== undefined) {
-        return nodeWidth;
+        return treeConfiguration.nodeWidth;
       }
-      return d.data.spouseId !== undefined ? nodeWidthSpouse : nodeWidth;
+      return d.data.spouseId !== undefined
+        ? treeConfiguration.nodeWidthSpouse
+        : treeConfiguration.nodeWidth;
     })
 
-    .nodeHeight((d) =>
-      d.data.spouseId !== undefined ? nodeHeightSpouse : nodeHeight
+    .nodeHeight((d: HierarchyNode<FamilyModel>) =>
+      d.data.spouseId !== undefined
+        ? treeConfiguration.nodeHeightSpouse
+        : treeConfiguration.nodeHeight
     )
-    .childrenMargin((d) => 30)
-    .siblingsMargin((d) => siblingsMargin)
-    .neightbourMargin((d) => 10)
-    // .compactMarginBetween((d) => 175)
-    // .compactMarginPair((d) => 80)
-    .linkUpdate(function (d, i, arr) {
+    .childrenMargin(() => treeConfiguration.childrenMargin)
+    .siblingsMargin(() => treeConfiguration.siblingsMargin)
+    .neightbourMargin(() => treeConfiguration.neightbourMargin)
+    .linkUpdate(function (d: HierarchyNode<FamilyModel>) {
       // drawing the connecting line
       if (d.data.primarySpouseId !== undefined) {
         return;
       } else {
         d3.select(this)
-          .attr('stroke', (d) => 'lightgray')
-          .attr('stroke-width', (d) => 2);
+          .attr('stroke', () => treeConfiguration.linkStroke)
+          .attr('stroke-width', () => treeConfiguration.linkStrokeWidth);
       }
     })
-    .connectionsUpdate(function (d, i, arr) {
+    .connectionsUpdate(function () {
       d3.select(this)
-        .attr('stroke', (d) => 'black')
-        .attr('stroke-width', (d) => 2);
+        .attr('stroke', () => treeConfiguration.connectionStroke)
+        .attr('stroke-width', () => treeConfiguration.connectionStrokeWidth);
     })
-    .nodeContent(function (d, i, arr, state) {
+    .nodeContent(function (d: HierarchyNode<FamilyModel>) {
       const personData: FamilyModel = <FamilyModel>d.data;
 
       let extraCss = '';
@@ -134,7 +130,7 @@ function renderChart(data: FamilyModel[]) {
     .compact(false);
 
   // changing the links for persons who has spouse
-  chart.layoutBindings().top.linkX = (d) => {
+  chart.layoutBindings().top.linkX = (d: HierarchyNode<FamilyModel>) => {
     let x = d.x;
     if (d.data === undefined) {
       // Using x & y locations get the corresponding person data
@@ -149,9 +145,9 @@ function renderChart(data: FamilyModel[]) {
         }
       });
     } else if (d.data.spouseId !== undefined && d.data.gender === 'M') {
-      x = d.x - linkShift; // for parent to child link
+      x = d.x - treeConfiguration.linkShift; // for parent to child link
     } else if (d.data.spouseId !== undefined && d.data.gender === 'F') {
-      x = d.x + linkShift; // for parent to child link
+      x = d.x + treeConfiguration.linkShift; // for parent to child link
     } else {
       x = d.x;
     }
@@ -159,7 +155,7 @@ function renderChart(data: FamilyModel[]) {
     return x;
   };
 
-  chart.layoutBindings().top.linkY = (d) => {
+  chart.layoutBindings().top.linkY = (d: HierarchyNode<FamilyModel>) => {
     if (d.data === undefined) {
       // connections
       return d.y + d.height / 2;
@@ -168,7 +164,7 @@ function renderChart(data: FamilyModel[]) {
     }
   };
 
-  chart.layoutBindings().top.linkJoinX = (d) => {
+  chart.layoutBindings().top.linkJoinX = (d: HierarchyNode<FamilyModel>) => {
     let x = d.x;
     if (d.data === undefined) {
       // connections
@@ -189,7 +185,7 @@ function renderChart(data: FamilyModel[]) {
 
     return x;
   };
-  chart.layoutBindings().top.linkJoinY = (d) => {
+  chart.layoutBindings().top.linkJoinY = (d: HierarchyNode<FamilyModel>) => {
     if (d.data === undefined) {
       // connections
       return d.y + d.height / 2;
@@ -198,27 +194,21 @@ function renderChart(data: FamilyModel[]) {
     }
   };
 
-  // chart.layoutBindings().top.buttonX = (d) => {
-  //   return d.width / 2 - 10;
-  // };
-  // chart.layoutBindings().top.linkParentX = (d) => {
-  //   return d.parent.x - 10;
-  // };
-
   // checking for multiple spouses
-  const multipleSpouseConnections = [];
+  const multipleSpouseConnections: Connection[] = [];
   data.forEach((model) => {
     if (model.primarySpouseId !== undefined) {
       multipleSpouseConnections.push({
         from: model.primarySpouseId,
         to: model.id,
+        label: '',
       });
     }
   });
   chart.connections(multipleSpouseConnections);
 
-  chart.render().fit();
-  // chart.expandAll().fit();
+  chart.render();
+  chart.expandAll();
 }
 
 function getPersonNodeContent(personData: FamilyModel, personType: string) {
@@ -264,7 +254,7 @@ function getPersonNodeContent(personData: FamilyModel, personType: string) {
   }
 }
 
-function nodeClicked(personId: string) {
+function nodeClicked(personId: NodeId) {
   chart.setCentered(personId);
   // for each of the childrent set expanded
   treeData.forEach((d) => {
@@ -273,7 +263,7 @@ function nodeClicked(personId: string) {
     }
   });
 
-  chart.render().fit();
+  chart.render();
 
   selectedPersonId = window.selectedPersonId;
   d3.selectAll('.chart-container .person-member').classed(
@@ -287,171 +277,6 @@ function nodeClicked(personId: string) {
 }
 
 function getTreeData() {
-  const treeData: FamilyModel[] = [
-    {
-      id: 'L1-L1S',
-      childId: 'L1',
-      name: 'Grand Father',
-      gender: 'M',
-      parentId: '',
-      childOrder: 1,
-      spouseId: 'L1S',
-      spouseName: 'Grand Mother',
-      spouseGender: 'F',
-      spouseOrder: 1,
-    },
-    {
-      id: 'C1-C1S1',
-      childId: 'C1',
-      name: 'Son 1',
-      gender: 'M',
-      parentId: 'L1-L1S',
-      childOrder: 1,
-      spouseId: 'C1S1',
-      spouseName: 'Son 1 - Wife 1',
-      spouseGender: 'F',
-      spouseOrder: 1,
-    },
-    {
-      id: 'C1-C1S2',
-      childId: 'C1',
-      name: 'Son 1',
-      gender: 'M',
-      parentId: 'L1-L1S',
-      childOrder: 1,
-      spouseId: 'C1S2',
-      spouseName: 'Son 1 - Wife 2',
-      spouseGender: 'F',
-      spouseOrder: 2,
-      primarySpouseId: 'C1-C1S1',
-    },
-    {
-      id: 'C2-C2S1',
-      childId: 'C2',
-      name: 'Daughter',
-      gender: 'F',
-      parentId: 'L1-L1S',
-      childOrder: 2,
-      spouseId: 'C2S1',
-      spouseName: 'Daughter-Husband 1',
-      spouseGender: 'M',
-      spouseOrder: 1,
-      primarySpouseId: 'C2-C2S2',
-    },
-    {
-      id: 'C2-C2S2',
-      childId: 'C2',
-      name: 'Daughter',
-      gender: 'F',
-      parentId: 'L1-L1S',
-      childOrder: 2,
-      spouseId: 'C2S2',
-      spouseName: 'Daughter-Husband 2',
-      spouseGender: 'M',
-      spouseOrder: 1,
-    },
-    {
-      id: 'C3-C3S',
-      childId: 'C3',
-      name: 'Son 2',
-      gender: 'M',
-      parentId: 'L1-L1S',
-      childOrder: 3,
-      spouseId: 'C3S',
-      spouseName: 'Son 2 - Wife',
-      spouseGender: 'F',
-      spouseOrder: 1,
-    },
-    {
-      id: 'G1',
-      childId: 'G1',
-      name: 'Grand Daughter 1',
-      gender: 'F',
-      parentId: 'C1-C1S1',
-      childOrder: 1,
-    },
-    {
-      id: 'G2',
-      childId: 'G2',
-      name: 'Grand Son 2',
-      gender: 'M',
-      parentId: 'C1-C1S1',
-      childOrder: 2,
-    },
-    {
-      id: 'G3',
-      childId: 'G3',
-      name: 'Grand Daughter 3',
-      gender: 'F',
-      parentId: 'C1-C1S2',
-      childOrder: 1,
-    },
-    {
-      id: 'G4',
-      childId: 'G4',
-      name: 'Grand Son 4',
-      gender: 'M',
-      parentId: 'C1-C1S2',
-      childOrder: 2,
-    },
-    {
-      id: 'G15',
-      childId: 'G5',
-      name: 'Grand Daughter 5',
-      gender: 'F',
-      parentId: 'C2-C2S1',
-      childOrder: 1,
-    },
-    {
-      id: 'G16',
-      childId: 'G5',
-      name: 'Grand Daughter 5',
-      gender: 'F',
-      parentId: 'C2-C2S1',
-      childOrder: 1,
-    },
-    {
-      id: 'G17',
-      childId: 'G5',
-      name: 'Grand Daughter 5',
-      gender: 'F',
-      parentId: 'C2-C2S1',
-      childOrder: 1,
-    },
-    {
-      id: 'G5',
-      childId: 'G5',
-      name: 'Grand Daughter 5',
-      gender: 'F',
-      parentId: 'C2-C2S2',
-      childOrder: 1,
-    },
-    {
-      id: 'G6',
-      childId: 'G6',
-      name: 'Grand Daughter 6',
-      gender: 'F',
-      parentId: 'C2-C2S2',
-      childOrder: 2,
-    },
-    {
-      id: 'G7',
-      childId: 'G7',
-      name: 'Grand Son 7',
-      gender: 'M',
-      parentId: 'C3-C3S',
-      childOrder: 1,
-    },
-    {
-      id: 'G8',
-      childId: 'G8',
-      name: 'Grand Son 8',
-      gender: 'M',
-      parentId: 'C3-C3S',
-      childOrder: 2,
-    },
-  ];
-
-  return treeData;
+  return familyData;
 }
 </script>
