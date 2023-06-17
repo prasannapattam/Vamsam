@@ -16,7 +16,7 @@
 
         <div class="row items-center">
           <q-select
-            ref="personSearch"
+            ref="personSearchSelect"
             filled
             v-model="model"
             use-input
@@ -25,27 +25,34 @@
             hide-selected
             hide-dropdown-icon
             input-debounce="2"
-            label="Searh"
+            label="Search"
+            dark
+            dense
             :options="options"
             @filter="filterFn"
             @filter-abort="abortFilterFn"
             @update:model-value="personSelected"
             style="width: 350px"
           >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
               </q-item>
             </template>
             <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps">
+              <q-item class="q-pb-none q-pt-none" v-bind="scope.itemProps">
                 <q-item-section avatar>
-                  <q-icon :name="scope.opt.icon" />
+                  <q-avatar color="blue" text-color="white">
+                    <img :src="scope.opt.icon" />
+                  </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
-                    {{ scope.opt.label }}
-                    {{ scope.opt.description }}
+                    <div style="font-size: 1.5em">{{ scope.opt.label }}</div>
+                    <div>{{ scope.opt.description }}</div>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -80,18 +87,19 @@
   </q-layout>
 </template>
 
-<style lang="sass">
+<!-- <style lang="sass">
 .q-field__label
   color: white
-</style>
+</style> -->
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import maleIcon from 'src/assets/images/male.svg';
 import femaleIcon from 'src/assets/images/female.svg';
 import familyData from 'src/services/family-data.json';
 import { OptionsModel } from 'src/models/quasar-models';
 import { QSelect } from 'quasar';
+import session from 'src/services/session';
 
 // import EssentialLink, {
 //   EssentialLinkProps,
@@ -144,9 +152,12 @@ import { QSelect } from 'quasar';
 
 const options = ref<OptionsModel[]>([]);
 const model = ref(null);
-const personSearch = ref<QSelect>();
-
+const personSearchSelect = ref<QSelect>();
 const leftDrawerOpen = ref(false);
+
+onMounted(() => {
+  //console.log(personSearchSelect.value.$refs);
+});
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -168,16 +179,23 @@ function abortFilterFn() {
   // console.log('delayed filter aborted')
 }
 
-function personSelected(val: OptionsModel) {
+function personSelected(option: OptionsModel) {
+  if (option !== null) {
+    session.searchPersonId.value = option.value;
+    setTimeout(() => {
+      personSearchSelect.value?.blur();
+    }, 500);
+  }
+
   // console.log(val);
-  // // console.log(personSearch.value.target);
-  // console.log(personSearch.value.$refs);
-  // personSearch.value.$nextTick(() => {
+  // // console.log(personSearchSelect.value.target);
+  // console.log(personSearchSelect.value.$refs);
+  // personSearchSelect.value.$nextTick(() => {
   //   // Remove focus from the input element
-  //   personSearch.value.$refs.input.blur();
+  //   personSearchSelect.value.$refs.input.blur();
   //});
-  //personSearch.value.blur();
-  // personSearch.value.$refs.input.blur();
+  //personSearchSelect.value.blur();
+  // personSearchSelect.value.$refs.input.blur();
 }
 
 function search(val: string) {
@@ -186,7 +204,7 @@ function search(val: string) {
     value: d.id,
     label: d.name,
     description: getParents(d.parentId),
-    icon: 'mail',
+    icon: d.gender === 'M' ? maleIcon : femaleIcon,
   }));
 }
 

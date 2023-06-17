@@ -1,3 +1,3 @@
 interface Window {
-  selectedPersonId: string;
+  selectedPersonId: string | undefined;
 }

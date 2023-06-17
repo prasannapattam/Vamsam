@@ -43,7 +43,9 @@ div.line
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
+import { Loading } from 'quasar';
+
 import { FamilyModel } from '../models/family-model';
 import { PersonModel } from 'src/models/person-model';
 import maleIcon from 'src/assets/images/male.svg';
@@ -52,16 +54,42 @@ import familyData from 'src/services/family-data.json';
 import treeConfiguration from 'src/services/tree-configuration';
 import { OrgChart, Connection, NodeId } from 'd3-org-chart';
 import { HierarchyNode } from 'd3-hierarchy';
+import session from 'src/services/session';
 
 // class variables
 let chart: OrgChart<FamilyModel>;
-let selectedPersonId: string;
 let treeData: FamilyModel[];
 
 onMounted(() => {
-  treeData = getTreeData(); // get the family data
-  renderChart(treeData);
+  loadTree();
 });
+
+onUnmounted(() => {
+  window.selectedPersonId = undefined;
+});
+
+watch([session.searchPersonId], (newValues, oldValues) => {
+  if (newValues[0] !== oldValues[0]) {
+    const personId = <string>newValues[0];
+    window.selectedPersonId = personId;
+
+    d3.select('.svg-chart-container').remove();
+    loadTree();
+    // nodeClicked(<NodeId>personId);
+  }
+});
+
+function loadTree() {
+  Loading.show();
+  setTimeout(() => {
+    treeData = getTreeData(); // get the family data
+    renderChart(treeData);
+    if (window.selectedPersonId !== undefined) {
+      nodeClicked(window.selectedPersonId);
+    }
+    Loading.hide();
+  }, 1000);
+}
 
 function renderChart(data: FamilyModel[]) {
   chart = new OrgChart<FamilyModel>()
@@ -99,7 +127,8 @@ function renderChart(data: FamilyModel[]) {
     .connectionsUpdate(function () {
       d3.select(this)
         .attr('stroke', () => treeConfiguration.connectionStroke)
-        .attr('stroke-width', () => treeConfiguration.connectionStrokeWidth);
+        .attr('stroke-width', () => treeConfiguration.connectionStrokeWidth)
+        .lower();
     })
     .nodeContent(function (d: HierarchyNode<FamilyModel>) {
       const personData: FamilyModel = <FamilyModel>d.data;
@@ -243,8 +272,12 @@ function getPersonNodeContent(personData: FamilyModel, personType: string) {
     ) {
       nodeContent += '<div class="line"><hr/></div>';
     }
+
+    const selectedPersonCssClass =
+      window.selectedPersonId === person.id ? 'selected-person' : '';
+
     nodeContent += `
-        <div class="col ${personCssClass} person-member person-${person.id}" onclick="window.selectedPersonId = '${person.id}';">
+        <div class="col ${personCssClass} person-member person-${person.id} ${selectedPersonCssClass}" onclick="window.selectedPersonId = '${person.id}';">
           <div class="col-grow">
             <img src="${personIcon}" class="person-icon" />
           </div>
@@ -264,16 +297,6 @@ function nodeClicked(personId: NodeId) {
   });
 
   chart.render();
-
-  selectedPersonId = window.selectedPersonId;
-  d3.selectAll('.chart-container .person-member').classed(
-    'selected-person',
-    false
-  );
-  d3.select(`.chart-container .person-${selectedPersonId}`).classed(
-    'selected-person',
-    true
-  );
 }
 
 function getTreeData() {
