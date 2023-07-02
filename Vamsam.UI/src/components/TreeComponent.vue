@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container" style="width: 100%; min-height: inherit"></div>
+  <div class="chart-container" style="width: 100%; min-height: 100%"></div>
 </template>
 <style lang="sass">
 .person-member

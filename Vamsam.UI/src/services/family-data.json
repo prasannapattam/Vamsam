@@ -37,19 +37,6 @@
     "primarySpouseId": "C1-C1S1"
   },
   {
-    "id": "C2-C2S1",
-    "childId": "C2",
-    "name": "Daughter",
-    "gender": "F",
-    "parentId": "L1-L1S",
-    "childOrder": 2,
-    "spouseId": "C2S1",
-    "spouseName": "Husband 1",
-    "spouseGender": "M",
-    "spouseOrder": 1,
-    "primarySpouseId": "C2-C2S2"
-  },
-  {
     "id": "C2-C2S2",
     "childId": "C2",
     "name": "Daughter",
@@ -57,7 +44,7 @@
     "parentId": "L1-L1S",
     "childOrder": 2,
     "spouseId": "C2S2",
-    "spouseName": "Husband 2",
+    "spouseName": "Husband",
     "spouseGender": "M",
     "spouseOrder": 1
   },
@@ -104,30 +91,6 @@
     "gender": "M",
     "parentId": "C1-C1S2",
     "childOrder": 2
-  },
-  {
-    "id": "G15",
-    "childId": "G5",
-    "name": "Grand Daughter 6",
-    "gender": "F",
-    "parentId": "C2-C2S1",
-    "childOrder": 1
-  },
-  {
-    "id": "G16",
-    "childId": "G5",
-    "name": "Grand Daughter 7",
-    "gender": "F",
-    "parentId": "C2-C2S1",
-    "childOrder": 1
-  },
-  {
-    "id": "G17",
-    "childId": "G5",
-    "name": "Grand Daughter 8",
-    "gender": "F",
-    "parentId": "C2-C2S1",
-    "childOrder": 1
   },
   {
     "id": "G5",
