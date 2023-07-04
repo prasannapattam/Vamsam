@@ -1,51 +1,101 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
-      <q-card-section>
-        <q-input v-model="person.name" label="Name" />
-        <q-select
-          v-model="person.gender"
-          :options="genderOptions"
-          label="Gender"
-        />
-        <div class="row">
-          <div class="col col-4">
+    <q-card class="q-dialog-plugin add-dialog">
+      <q-card-section class="q-pa-sm flex-grow">
+        <q-tabs
+          v-model="tab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="basic" label="Basic Details" />
+          <q-tab name="personal" label="Personal Details" />
+        </q-tabs>
+
+        <q-separator />
+
+        <q-tab-panels v-model="tab" animated dense>
+          <q-tab-panel class="q-pa-sm" name="basic">
+            <q-input v-model="person.name" dense label="Name" />
             <q-select
-              v-model="person.relationShip"
-              :options="relationshipOptions"
-              label="Relation"
+              dense
+              v-model="person.gender"
+              :options="genderOptions"
+              label="Gender"
+              emit-value
+              map-options
             />
-          </div>
-          <div class="col col-8">
-            <PersonSearchComponent></PersonSearchComponent>
-          </div>
-        </div>
+            <div class="row">
+              <div class="col col-4">
+                <q-select
+                  dense
+                  v-model="person.relationShip"
+                  :options="relationshipOptions"
+                  label="Relation"
+                  emit-value
+                  map-options
+                />
+              </div>
+              <div class="col col-8">
+                <PersonSearchComponent
+                  v-model="person.relatedPersonId"
+                  :global-search-ind="false"
+                  label="Related Person"
+                ></PersonSearchComponent>
+              </div>
+            </div>
+            <q-input v-model="person.mobile" dense label="Mobile" />
+          </q-tab-panel>
+
+          <q-tab-panel name="alarms">
+            <div class="text-h6">Alarms</div>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          </q-tab-panel>
+        </q-tab-panels>
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn color="primary" label="Add" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn dense color="primary" label="Add" @click="onOKClick" />
+        <q-btn dense color="primary" label="Cancel" @click="onDialogCancel" />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
-<style lang="sass" scoped></style>
+<style lang="sass" scoped>
+.add-dialog
+  min-height: 80vh
+  display: flex
+  flex-direction: column
+.flex-grow
+  flex-grow: 1
+</style>
 
 <script setup>
 import { ref } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
 import { PersonAddModel } from 'src/models/person-add-model';
 import PersonSearchComponent from 'src/components/PersonSearchComponent.vue';
+import PersonService from 'src/services/person.service';
 
+const tab = ref('basic');
 let person = ref(new PersonAddModel());
-let genderOptions = ['Male', 'Female'];
-let relationshipOptions = [
-  'Father of',
-  'Mother of',
-  'Son of',
-  'Daughter of',
-  'Brother of',
-  'Sister of',
+const genderOptions = [
+  { label: 'Male', value: 'M' },
+  { label: 'Female', value: 'F' },
+];
+
+const relationshipOptions = [
+  { label: 'Father of', value: 'F' },
+  { label: 'Mother of', value: 'M' },
+  { label: 'Son of', value: 'S' },
+  { label: 'Daughter of', value: 'D' },
+  { label: 'Wife of', value: 'W' },
+  { label: 'Husband of', value: 'H' },
+  { label: 'Brother of', value: 'B' },
+  { label: 'Sister of', value: 'S' },
 ];
 
 const props = defineProps({
@@ -69,11 +119,9 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 // this is part of our example (so not required)
 function onOKClick() {
-  // on OK, it is REQUIRED to
+  PersonService.savePerson(person.value);
   // call onDialogOK (with optional payload)
-  console.log(person.value);
-  onDialogOK();
   // or with payload: onDialogOK({ ... })
-  // ...and it will also hide the dialog automatically
+  onDialogOK();
 }
 </script>

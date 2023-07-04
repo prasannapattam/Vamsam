@@ -14,6 +14,8 @@
         <q-toolbar-title shrink> Vamsam </q-toolbar-title>
         <q-space></q-space>
         <PersonSearchComponent
+          :global-search-ind="true"
+          label="Search"
           @selected="personSelected"
         ></PersonSearchComponent>
         <q-space></q-space>
@@ -105,21 +107,18 @@ function personAdd() {
   $q.dialog({
     component: PersonAddDialog,
 
-    // props forwarded to your custom component
     componentProps: {
       persistent: true,
-      // text: 'something',
-      // ...more..props...
     },
-  })
-    .onOk(() => {
-      console.log('OK');
-    })
-    .onCancel(() => {
-      console.log('Cancel');
-    })
-    .onDismiss(() => {
-      console.log('Called on OK or Cancel');
-    });
+  });
+  // .onOk(() => {
+  //   console.log('OK');
+  // })
+  // .onCancel(() => {
+  //   console.log('Cancel');
+  // })
+  // .onDismiss(() => {
+  //   console.log('Called on OK or Cancel');
+  // });
 }
 </script>

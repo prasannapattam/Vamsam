@@ -50,7 +50,6 @@ import { FamilyModel } from '../models/family-model';
 import { PersonModel } from 'src/models/person-model';
 import maleIcon from 'src/assets/images/male.svg';
 import femaleIcon from 'src/assets/images/female.svg';
-import familyData from 'src/services/family-data.json';
 import treeConfiguration from 'src/services/tree-configuration';
 import { OrgChart, Connection, NodeId } from 'd3-org-chart';
 import { HierarchyNode } from 'd3-hierarchy';
@@ -300,6 +299,6 @@ function nodeClicked(personId: NodeId) {
 }
 
 function getTreeData() {
-  return familyData;
+  return session.familyData;
 }
 </script>
